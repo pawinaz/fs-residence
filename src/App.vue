@@ -111,27 +111,27 @@ export default {
     // ]
   }),
 
-  // methods: {
-  //   getStatusColor(status) {
-  //     switch (status) {
-  //       case 'จองแล้ว':
-  //         return 'blue'
-  //       case 'เช็คอินแล้ว':
-  //         return 'green'
-  //       case 'รอเช็คอิน':
-  //         return 'orange'
-  //       default:
-  //         return 'grey'
-  //     }
-  //   },
+  methods: {
+    getStatusColor(status) {
+      switch (status) {
+        case 'จองแล้ว':
+          return 'blue'
+        case 'เช็คอินแล้ว':
+          return 'green'
+        case 'รอเช็คอิน':
+          return 'orange'
+        default:
+          return 'grey'
+      }
+    },
 
-  //   editBooking(item) {
-  //     console.log('แก้ไขการจอง:', item)
-  //   },
+    editBooking(item) {
+      console.log('แก้ไขการจอง:', item)
+    },
 
-  //   deleteBooking(item) {
-  //     console.log('ลบการจอง:', item)
-  //   }
-  // }
+    deleteBooking(item) {
+      console.log('ลบการจอง:', item)
+    }
+  }
 }
 </script>
