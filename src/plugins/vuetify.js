@@ -7,7 +7,7 @@ export default new Vuetify({
     theme: {
         themes: {
             light: {
-                primary: '#1976D2', // สีหลัก
+                primary: '#E195AB', // สีหลัก
                 secondary: '#424242', // สีรอง
                 accent: '#82B1FF', // สีเสริม
                 error: '#FF5252', // สีสำหรับข้อผิดพลาด
