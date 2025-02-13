@@ -21,7 +21,7 @@
                   New Booking
                 </v-btn>
               </v-card-title>
-              <v-dialog v-model="dialog" max-width="600px">
+              <v-dialog v-model="dialog" max-width="500px">
                 <v-card>
                   <v-card-title class="headline font-weight-bold"
                     >New Booking</v-card-title
@@ -97,7 +97,6 @@
                               clearable
                             ></v-select>
                           </v-col>
-                          <v-col cols="12" sm="4" md="6"> </v-col>
                         </v-row>
                       </v-container>
                     </v-form>
@@ -111,20 +110,63 @@
                   </v-card-actions>
                 </v-card>
                 <v-dialog v-model="summaryDialog" max-width="500px">
-                  <v-card>
-                    <v-card-title class="headline font-weight-bold"
-                      >Booking Summary</v-card-title
+                  <v-card class="mx-auto" max-width="800">
+                    <v-card-title
+                      class="headline font-weight-bold text-center primary white--text"
                     >
-                    <v-card-text>
-                      <p>Check-in Date: {{ StartDate }}</p>
-                      <p>Check-out Date: {{ EndDate }}</p>
-                      <p>Room Type: {{ roomdisplay }}</p>
+                      Booking Summary
+                    </v-card-title>
+
+                    <v-card-text class="mt-4">
+                      <v-simple-table>
+                        <template v-slot:default>
+                          <thead>
+                            <tr>
+                              <th class="text-center">Check-in Date</th>
+                              <th class="text-center">Check-out Date</th>
+                              <th class="text-center">Room Price</th>
+                              <th class="text-center">Duration</th>
+                            </tr>
+                          </thead>
+                          <tbody>
+                            <tr>
+                              <td class="text-center subtitle-1">
+                                {{ startdatedisplay }}
+                              </td>
+                              <td class="text-center subtitle-1">
+                                {{ enddatedisplay }}
+                              </td>
+                              <td class="text-center subtitle-1">
+                                {{ roompricedisplay }}
+                              </td>
+                              <td class="text-center subtitle-1">
+                                {{ diffdatedisplay }}
+                              </td>
+                            </tr>
+                          </tbody>
+                        </template>
+                      </v-simple-table>
                     </v-card-text>
-                    <v-card-actions>
+
+                    <v-divider></v-divider>
+
+                    <v-card-actions class="pa-4">
                       <v-spacer></v-spacer>
-                      <v-btn @click="summaryDialog = false" color="primary" dark
-                        >Close</v-btn
+                      <v-btn
+                        @click="submitBooking"
+                        color="primary"
+                        class="px-6"
+                        elevation="2"
                       >
+                        Save
+                      </v-btn>
+                      <v-btn
+                        @click="summaryDialog = false"
+                        class="ml-2"
+                        outlined
+                      >
+                        Close
+                      </v-btn>
                     </v-card-actions>
                   </v-card>
                 </v-dialog>
@@ -140,32 +182,12 @@
                       class="elevation-1"
                       dense
                     >
-                      <!-- <template v-slot:[`item.status`]="props">
-                        <v-chip
-                          :color="getStatusColor(props.item.status)"
-                          small
-                        >
-                          {{ props.item.status }}
-                        </v-chip>
-                      </template> -->
                       <template v-slot:[`item.status`]="{ item }">
                         <v-chip :color="getStatusColor(item.status)" small>
                           {{ item.status }}
                         </v-chip>
                       </template>
 
-                      <!-- <template v-slot:[`item.actions`]="props">
-                        <v-icon
-                          small
-                          class="mr-2"
-                          @click="editBooking(props.item)"
-                        >
-                          mdi-pencil
-                        </v-icon>
-                        <v-icon small @click="deleteBooking(props.item)">
-                          mdi-delete
-                        </v-icon>
-                      </template> -->
                       <template v-slot:[`item.actions`]="{ item }">
                         <v-icon small class="mr-2" @click="editBooking(item)">
                           mdi-pencil
@@ -190,22 +212,9 @@
               <v-card-text>
                 <v-row align="center">
                   <v-col cols="8">
-                    <!-- Detail about service charge. -->
                     <p class="mb-0">Manage detail about service charge.</p>
                   </v-col>
-                  <!-- <v-col cols="5" class="d-flex justify-center">
-                    <img
-                      src="@/assets/maid.png"
-                      alt="Setting Image"
-                      style="
-                        width: 50px;
-                        height: 50px;
-                        margin-left: auto;
-                        margin-right: 10px;
-                        display: block;
-                      "
-                    />
-                  </v-col> -->
+
                   <v-col cols="4" class="d-flex justify-end">
                     <v-avatar size="50" color="primary" class="white--text">
                       <v-icon>mdi-broom</v-icon>
@@ -214,20 +223,7 @@
                 </v-row>
               </v-card-text>
               <v-card-text>
-                <!-- <v-btn
-                  color="primary"
-                  @click="dialogManageHousekeeping = true"
-                  class="ma-2"
-                  style="width: 95%"
-                >
-                  <v-icon large>mdi-settings</v-icon>
-                  Settings
-                </v-btn> -->
-                <v-btn
-                  color="primary"
-                  @click="dialogManageHousekeeping = true"
-                  dark
-                >
+                <v-btn color="primary" @click="GetServiceCharges()" dark>
                   Manage
                 </v-btn>
                 <v-dialog v-model="dialogManageHousekeeping" max-width="500px">
@@ -242,20 +238,27 @@
                         hide-default-footer
                         class="elevation-1"
                       >
-                        <template v-slot:[`item.housekeepingActions`]="props">
-                          <v-icon small @click="editHousekeeping(props.item)"
-                            >mdi-pencil</v-icon
-                          >
-                          <v-icon small @click="deleteHousekeeping(props.item)"
-                            >mdi-delete</v-icon
-                          >
+                        <template v-slot:body="{ items }">
+                          <tr v-for="item in items" :key="item.id">
+                            <td class="text-center">{{ item.id }}</td>
+                            <td class="text-center">{{ item.list_service }}</td>
+                            <td class="text-center">{{ item.price }}</td>
+                            <td class="text-center">
+                              <v-btn
+                                icon
+                                color="primary"
+                                @click="editHousekeeping(item)"
+                              >
+                                <v-icon>mdi-pencil</v-icon>
+                              </v-btn>
+                            </td>
+                          </tr>
                         </template>
                       </v-data-table>
                     </v-card-text>
                     <v-card-actions>
-                      <v-btn
-                        @click="dialogManageHousekeeping = false"
-                        style="width: 100%"
+                      <v-spacer></v-spacer>
+                      <v-btn @click="dialogManageHousekeeping = false"
                         >Close</v-btn
                       >
                     </v-card-actions>
@@ -264,10 +267,47 @@
               </v-card-text>
             </v-card>
           </v-col>
-
+          <v-dialog v-model="showeditHousekeeping" persistent max-width="500">
+            <v-card>
+              <v-card-title class="text-h6 font-weight-bold"
+                >Edit Settings</v-card-title
+              >
+              <v-divider></v-divider>
+              <v-card-text class="pa-4">
+                <v-text-field
+                  v-show="false"
+                  v-model="editedHousekeeping.id"
+                  label="ID"
+                  outlined
+                  dense
+                ></v-text-field>
+                <v-text-field
+                  v-model="editedHousekeeping.list_service"
+                  label="Title"
+                  outlined
+                  dense
+                ></v-text-field>
+                <v-text-field
+                  v-model="editedHousekeeping.price"
+                  label="Price"
+                  outlined
+                  dense
+                ></v-text-field>
+              </v-card-text>
+              <v-divider></v-divider>
+              <v-card-actions class="pa-3 justify-end">
+                <v-btn text color="grey" @click="showeditHousekeeping = false"
+                  >Cancel</v-btn
+                >
+                <v-btn text color="primary" @click="saveItem()">Save</v-btn>
+              </v-card-actions>
+            </v-card>
+          </v-dialog>
           <v-col cols="3">
             <v-card>
-              <v-card-title class="headline font-weight-bold">Promotion</v-card-title>
+              <v-card-title class="headline font-weight-bold"
+                >Promotion</v-card-title
+              >
               <v-card-text>
                 <v-row align="center">
                   <v-col cols="8">
@@ -281,14 +321,10 @@
                 </v-row>
               </v-card-text>
               <v-card-text>
-                <v-btn
-                  color="primary"
-                  @click="dialogManagePromotion = true"
-                  dark
-                >
+                <v-btn color="primary" @click="GetPromotion()" dark>
                   Manage
                 </v-btn>
-                <v-dialog v-model="dialogManagePromotion" max-width="500px">
+                <v-dialog v-model="dialogManagePromotion" max-width="800px">
                   <v-card>
                     <v-card-title>
                       <span class="headline">Manage Promotion</span>
@@ -300,20 +336,35 @@
                         hide-default-footer
                         class="elevation-1"
                       >
-                        <template v-slot:[`item.promotionActions`]="props">
-                          <v-icon small @click="editPromotion(props.item)"
-                            >mdi-pencil</v-icon
-                          >
-                          <v-icon small @click="deletePromotion(props.item)"
-                            >mdi-delete</v-icon
-                          >
+                        <template v-slot:body="{ items }">
+                          <tr v-for="item in items" :key="item.id">
+                            <td class="text-center">{{ item.id }}</td>
+                            <td class="text-center">{{ item.promotion }}</td>
+                            <td class="text-center">
+                              {{
+                                new Date(item.start_date).toLocaleDateString()
+                              }}
+                            </td>
+                            <td class="text-center">
+                              {{ new Date(item.end_date).toLocaleDateString() }}
+                            </td>
+                            <td class="text-center">{{ item.discount }}</td>
+                            <td class="text-center">
+                              <v-btn
+                                icon
+                                color="primary"
+                                @click="editPromotion(item)"
+                              >
+                                <v-icon>mdi-pencil</v-icon>
+                              </v-btn>
+                            </td>
+                          </tr>
                         </template>
                       </v-data-table>
                     </v-card-text>
                     <v-card-actions>
-                      <v-btn
-                        @click="dialogManagePromotion = false"
-                        style="width: 100%"
+                      <v-spacer></v-spacer>
+                      <v-btn @click="dialogManagePromotion = false"
                         >Close</v-btn
                       >
                     </v-card-actions>
@@ -338,6 +389,7 @@
 <script>
 import enurl from "@/api/environment";
 import axios from "axios";
+import Swal from "sweetalert2/dist/sweetalert2.js";
 
 export default {
   name: "HotelUI",
@@ -372,25 +424,53 @@ export default {
     bookings: [],
     summaryDialog: false,
     housekeepingHeaders: [
-      { text: "Title", value: "title", sortable: false },
-      { text: "Price", value: "Price", sortable: false },
-      { text: "Actions", value: "housekeepingActions", sortable: false },
+      { text: "Title", align: "center", value: "title", sortable: false },
+      { text: "Price", align: "center", value: "price", sortable: false },
+      {
+        text: "Actions",
+        align: "center",
+        value: "housekeepingActions",
+        sortable: false,
+      },
     ],
     housekeepingData: [],
+    editedHousekeeping: [],
+    showeditHousekeeping: false,
     promotionHeaders: [
       {
         text: "No.",
-        align: "start",
+        align: "center",
         value: "id",
         sortable: false,
       },
-      { text: "Title", value: "title", sortable: false },
-      { text: "Start Date", value: "startdate", sortable: false },
-      { text: "End Date", value: "startdate", sortable: false },
-      { text: "Discount", value: "Price", sortable: false },
-      { text: "Actions", value: "promotionActions", sortable: false },
+      { text: "Title", align: "center", value: "title", sortable: false },
+      {
+        text: "Start Date",
+        align: "center",
+        value: "startdate",
+        sortable: false,
+      },
+      {
+        text: "End Date",
+        align: "center",
+        value: "startdate",
+        sortable: false,
+      },
+      { text: "Discount", align: "center", value: "Price", sortable: false },
+      {
+        text: "Actions",
+        align: "center",
+        value: "promotionActions",
+        sortable: false,
+      },
     ],
     promotionData: [],
+    startdatedisplay: "",
+    enddatedisplay: "",
+    roomTypedisplay: "",
+    roompricedisplay: "",
+    servicedisplay: "",
+    diffdatedisplay: "",
   }),
   async mounted() {
     await this.GetDataRoomtype();
@@ -416,18 +496,69 @@ export default {
     deleteBooking(item) {
       console.log("Delete bookingง:", item);
     },
-    saveBooking(item) {
-      console.log("Save booking:", item);
-    },
     submitBooking() {
-      this.saveBooking();
-      this.summaryDialog = true;
+      let self = this;
+      self.saveBooking();
+      self.summaryDialog = true;
+    },
+    savebooking() {
+      let self = this;
+      let temp = {
+        start_date: self.StartDate,
+        end_date: self.EndDate,
+        room_type: self.roomType,
+      };
+      axios
+        .post(`${self.url}Booking/CalculateRoomPrice`, temp)
+        .then(function (response) {
+          if (response.data.status == 0) {
+            self.roomTypedisplay = response.data.data.room_type;
+            self.startdatedisplay = response.data.data.start_date;
+            self.enddatedisplay = response.data.data.end_date;
+            self.roompricedisplay = response.data.data.roomprice;
+            self.servicedisplay = response.data.data.service;
+            self.diffdatedisplay = response.data.data.diffDates;
+            self.GetDataRoomtype();
+            self.summaryDialog = true;
+          }
+        })
+        .catch(function (error) {
+          Swal.fire({
+            icon: "error",
+            title: "Error...",
+            width: 900,
+            text: error.response.data.message,
+          });
+        });
+    },
+    ReloadPage() {
+      window.location.reload();
     },
     editHousekeeping(item) {
-      console.log("Edit data:", item);
+      this.editedHousekeeping = item;
+      this.showeditHousekeeping = true;
     },
-    deleteHousekeeping(item) {
-      console.log("Delete data:", item);
+    saveItem() {
+      let self = this;
+      let temp = {
+        id: self.editedHousekeeping.id,
+        list_service: self.editedHousekeeping.list_service,
+        price: self.editedHousekeeping.price,
+      };
+
+      axios
+        .post(`${self.url}Settings/SaveServiceCharge`, temp)
+        .then((response) => {
+          if (response.status === 200) {
+            this.GetServiceCharges();
+            this.showeditHousekeeping = false;
+          } else {
+            throw new Error("บันทึกข้อมูลไม่สำเร็จ");
+          }
+        })
+        .catch((error) => {
+          console.error("Error details:", error);
+        });
     },
     editPromotion(item) {
       console.log("Edit promotion:", item);
@@ -436,21 +567,66 @@ export default {
       console.log("Delete promotion:", item);
     },
     openbookingsummary() {
-      this.roomdisplay = this.roomTypes.find(
-        (x) => x.id == this.roomType
-      ).room_type;
-      console.log(this.roomTypes.filter((x) => x.id == this.roomType));
-      this.summaryDialog = true;
+      let self = this;
+      self.savebooking();
+      self.summaryDialog = true;
     },
     async GetDataRoomtype() {
       let self = this;
       await axios
         .get(`${self.url}Booking/GetDataRoomtype`)
         .then(function (response) {
-          console.log(response.data.data)
           if (response.data.status == 0) {
             self.roomTypes = response.data.data;
           }
+        })
+        .catch(function (error) {
+          Swal.fire({
+            icon: "error",
+            title: "Error...",
+            width: 900,
+            text: error.response.data.message,
+          });
+        });
+    },
+    async GetServiceCharges() {
+      let self = this;
+      await axios
+        .get(`${self.url}Settings/GetServiceCharges`)
+        .then(function (response) {
+          console.log(response.data.data);
+          if (response.data.status == 0) {
+            self.housekeepingData = response.data.data;
+            self.dialogManageHousekeeping = true;
+          }
+        })
+        .catch(function (error) {
+          Swal.fire({
+            icon: "error",
+            title: "Error...",
+            width: 900,
+            text: error.response.data.message,
+          });
+        });
+    },
+    async GetPromotion() {
+      let self = this;
+      await axios
+        .get(`${self.url}Settings/GetPromotion`)
+        .then(function (response) {
+          console.log(response.data.data);
+          if (response.data.status == 0) {
+            self.promotionData = response.data.data;
+            self.dialogManagePromotion = true;
+          }
+        })
+        .catch(function (error) {
+          Swal.fire({
+            icon: "error",
+            title: "Error...",
+            width: 900,
+            text: error.response.data.message,
+          });
         });
     },
   },
