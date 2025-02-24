@@ -207,10 +207,9 @@
                     <v-data-table
                       :headers="headers"
                       :items="bookingData"
-                      :items-per-page="20"
+                      :items-per-page="15"
                       class="elevation-2 rounded-lg"
                       dense
-                      hide-default-footer
                     >
                       <template v-slot:body="{ items }">
                         <tr v-for="item in items" :key="item.id">
@@ -223,30 +222,40 @@
                             {{ ChangeFormatDate(item.end_date) }}
                           </td>
                           <td class="text-center">{{ item.room_type }}</td>
-                          <td class="text-center">{{ item.price }}</td>
-                          <td class="text-center">{{ item.status }}</td>
                           <td class="text-center">
-                            <!-- <v-switch
-                              v-model="item.status"
-                              :label="item.status ? 'Active' : 'Inactive'"
-                              @change="editBooking(item)"
-                              inset
-                            ></v-switch> -->
+                            {{ parseFloat(item.price).toFixed(0) }}
+                          </td>
+                          <td class="text-center"> 
+                            <v-icon v-if="item.status" color="green">
+                                mdi-check-circle
+                           </v-icon>
+                             <v-icon v-else color="red">
+                                mdi-close-circle
+                            </v-icon>
+                          </td>
+                          <td class="text-center"> 
+                            <v-icon v-if="item.cancel_status" color="green">
+                                mdi-check-circle
+                           </v-icon>
+                             <v-icon v-else color="red">
+                                mdi-close-circle
+                            </v-icon>
+                          </td>
 
+                          <td class="text-center">
                             <v-btn
+                              :disabled="item.status || item.cancel_status"
                               class="ma-1"
                               small
                               icon
                               color="orange"
-                              @click="item.status = 'check-out'"
+                              @click="checkoutBooking(item)"
                             >
-                              <v-icon>mdi-check-circle</v-icon>
+                              <v-icon>mdi-book-check</v-icon>
                             </v-btn>
-
                             <v-btn
+                              :disabled="item.status || item.cancel_status"
                               class="mx-1"
-                              fab
-                              dark
                               small
                               icon
                               color="red"
@@ -672,6 +681,7 @@ export default {
     roomTypes: [],
     roomdisplay: "",
     prices: [],
+    search: "",
     headers: [
       {
         text: "No.Booking",
@@ -704,7 +714,18 @@ export default {
         sortable: false,
       },
       { text: "Amount", align: "center", value: "amount", sortable: false },
-      { text: "Status", align: "center", value: "status", sortable: false },
+      {
+        text: "Check-out Status",
+        align: "center",
+        value: "status",
+        sortable: false,
+      },
+      {
+        text: "Cancel Status",
+        align: "center",
+        value: "status",
+        sortable: false,
+      },
       { text: "Actions", align: "center", value: "actions", sortable: false },
     ],
     bookings: [],
@@ -823,27 +844,29 @@ export default {
     ReloadPage() {
       window.location.reload();
     },
-    editBooking(item) {
-      axios
-        .post(`${this.url}Settings/BookingStatus`, {
-          room_type: item.room_type,
-          status: item.status,
-        })
-        .then((response) => {
-          console.log("New status:", item.status);
-          if (response.data.status === 0) {
-            console.log("After API call:", item.status);
-
-            Swal.fire("สำเร็จ!", "สถานะถูกอัปเดตแล้ว.", "success");
-            this.GetDataBooking();
-          }
-        })
-        .catch((error) => {
-          Swal.fire("เกิดข้อผิดพลาด!", error.response.data.message, "error");
-        });
-    },
+    // editBooking(item) {
+    //   axios
+    //     .post(`${this.url}Settings/BookingStatus`, {
+    //       room_type: item.room_type,
+    //       status: item.status,
+    //     })
+    //     .then((response) => {
+    //       console.log("New status:", item.status);
+    //       if (response.data.status === 0) {
+    //         // console.log("After API call:", item.status);
+    //         Swal.fire("สำเร็จ!", "สถานะถูกอัปเดตแล้ว.", "success");
+    //         this.GetDataBooking();
+    //       }
+    //     })
+    //     .catch((error) => {
+    //       Swal.fire("เกิดข้อผิดพลาด!", error.response.data.message, "error");
+    //     });
+    // },
     deleteBooking(item) {
       let self = this;
+      let temp = {
+        id:item.id,
+      };
       Swal.fire({
         title: "คุณแน่ใจหรือไม่?",
         text: "คุณต้องการยกเลิกการจองนี้!",
@@ -855,7 +878,7 @@ export default {
       }).then((result) => {
         if (result.isConfirmed) {
           axios
-            .post(`${self.url}Booking/CancelBooking`, { id: item.id })
+            .post(`${self.url}Booking/CancelBooking`,temp)
             .then(function (response) {
               if (response.data.status === 0) {
                 Swal.fire(
@@ -935,15 +958,14 @@ export default {
     SaveTransection() {
       let self = this;
       let temp = {
-        id: self.id, 
-        name: self.name, 
+        id: self.id,
+        name: self.name,
         start_date: self.StartDate,
-        end_date: self.EndDate, 
-        room_type: self.roomType, 
-        price: self.totalpricedisplay, 
-        status: self.status, 
-        roomID:self.roomID
-        
+        end_date: self.EndDate,
+        room_type: self.roomType,
+        price: self.totalpricedisplay,
+        status: self.status,
+        roomID: self.roomID,
       };
       console.log("Data to be sent to API:", temp);
 
@@ -1195,29 +1217,109 @@ export default {
           });
         });
     },
+    checkoutBooking(item) {
+      let self = this;
+      let temp = {
+        id: item.id,
+      };
+      console.log("Data to API:", temp);
+      axios
+        .post(`${self.url}Booking/Checkout`, temp)
+        .then((response) => {
+          if (response.status === 200 && response.data.status === 0) {
+            this.GetDataBooking();
+            Swal.fire({
+              icon: "success",
+              title: "บันทึกข้อมูลสำเร็จ",
+              showConfirmButton: false,
+              timer: 1500,
+            });
+          } else {
+            Swal.fire({
+              icon: "error",
+              title: "บันทึกข้อมูลไม่สำเร็จ",
+              width: 500,
+              text: response.data.message,
+            });
+          }
+        })
+        .catch(function (error) {
+          Swal.fire({
+            icon: "error",
+            title: "Error...",
+            width: 900,
+            text: error.response.data.message,
+          });
+        });
+    },
   },
 };
 </script>
 
 <style>
 .v-application {
-  font-family: "Roboto", sans-serif;
+  font-family: "Kanit", "Roboto", sans-serif !important;
+  background-color: whitesmoke;
 }
 
 .v-card {
-  transition: box-shadow 0.3s ease-in-out;
+  transition: all 0.3s ease;
+  border-radius: 12px !important;
 }
 
 .v-card:hover {
   box-shadow: 0 4px 20px rgba(0, 0, 0, 0.2) !important;
 }
 
+.v-card__title {
+  font-size: 1.25rem !important;
+  padding: 20px 24px !important;
+  border-bottom: 1px solid rgba(0, 0, 0, 0.05);
+}
+
 .v-btn {
-  text-transform: none;
+  text-transform: none !important;
+  letter-spacing: 0.5px;
   font-weight: 500;
+  border-radius: 8px !important;
+}
+
+.v-btn.primary {
+  background: linear-gradient(45deg, #1976d2, #2196f3) !important;
+  box-shadow: 0 4px 12px rgba(33, 150, 243, 0.3) !important;
 }
 
 .v-data-table {
-  border-radius: 4px;
+  border-radius: 12px !important;
+  overflow: hidden;
+}
+.v-data-table th {
+  font-weight: 600 !important;
+  text-transform: uppercase;
+  font-size: 0.8rem !important;
+  background-color: white !important;
+}
+
+.v-dialog .v-card {
+  border-radius: 16px !important;
+  overflow: hidden;
+}
+
+.v-text-field.v-text-field--outlined .v-input__control {
+  min-height: 44px !important;
+}
+
+.v-text-field--outlined fieldset {
+  border-radius: 8px !important;
+}
+
+.v-app-bar {
+  backdrop-filter: blur(10px);
+  background: linear-gradient(45deg, #1976d2, #2196f3) !important;
+}
+
+.v-toolbar-title {
+  font-size: 1.4rem !important;
+  font-weight: 700 !important;
 }
 </style>
