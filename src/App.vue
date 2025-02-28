@@ -36,6 +36,7 @@
                               label="Name"
                               outlined
                               dense
+                              :rules="[(v) => !!v || 'Name is required']"
                             ></v-text-field>
                           </v-col>
                           <v-col cols="12" sm="4" md="6">
@@ -69,7 +70,9 @@
                                   v-on="on"
                                   outlined
                                   dense
-                                  :rules="[(v) => !!v || 'Required']"
+                                  :rules="[
+                                    (v) => !!v || 'Check-in date is Required',
+                                  ]"
                                 ></v-text-field>
                               </template>
                               <v-date-picker
@@ -97,7 +100,9 @@
                                   v-on="on"
                                   outlined
                                   dense
-                                  :rules="[(v) => !!v || 'Required']"
+                                  :rules="[
+                                    (v) => !!v || 'Check-out is Required',
+                                  ]"
                                 ></v-text-field>
                               </template>
                               <v-date-picker
@@ -120,85 +125,113 @@
                     >
                   </v-card-actions>
                 </v-card>
+              </v-dialog>
 
-                <v-dialog v-model="summaryDialog" max-width="700px">
-                  <v-card>
-                    <v-card-title class="primary white--text">
-                      Booking Summary
-                    </v-card-title>
-                    <v-card-text class="pt-4">
-                      <v-simple-table>
-                        <template v-slot:default>
-                          <tbody>
-                            <tr>
-                              <td class="font-weight-medium">Name:</td>
-                              <td>{{ namedisplay }}</td>
-                            </tr>
-                            <tr>
-                              <td class="font-weight-medium">Check-in Date:</td>
-                              <td>{{ startdatedisplay }}</td>
-                            </tr>
-                            <tr>
-                              <td class="font-weight-medium">
-                                Check-out Date:
-                              </td>
-                              <td>{{ enddatedisplay }}</td>
-                            </tr>
-                            <tr>
-                              <td class="font-weight-medium">Room Type:</td>
-                              <td>{{ roomTypedisplay }}</td>
-                            </tr>
-                            <tr>
-                              <td class="font-weight-medium">Duration:</td>
-                              <td>{{ diffdatedisplay }} nights</td>
-                            </tr>
-                            <tr>
-                              <td class="font-weight-medium">
-                                Room Price per night:
-                              </td>
-                              <td>{{ roompricedisplay }}</td>
-                            </tr>
-                            <tr>
-                              <td class="font-weight-medium">Service:</td>
-                              <td>{{ servicedisplay }}</td>
-                            </tr>
-                            <tr>
-                              <td class="font-weight-medium">TAX:</td>
-                              <td>{{ vatdisplay }}</td>
-                            </tr>
-                            <tr>
-                              <td class="font-weight-medium">Discount:</td>
-                              <td>{{ discountdisplay }}</td>
-                            </tr>
-                            <tr>
-                              <td class="font-weight-medium">
-                                Subtotal(inc. VAT):
-                              </td>
-                              <td class="font-weight-medium">
-                                {{ totalpricevatdisplay }}
-                              </td>
-                            </tr>
-                            <tr>
-                              <td class="font-weight-medium">Total Price:</td>
-                              <td class="font-weight-medium">
-                                {{ totalpricedisplay }}
-                              </td>
-                            </tr>
-                          </tbody>
-                        </template>
-                      </v-simple-table>
-                    </v-card-text>
-                    <v-divider></v-divider>
+              <v-dialog v-model="summaryDialog" max-width="700px">
+                <v-card>
+                  <v-card-title class="primary white--text">
+                    Booking Summary
+                  </v-card-title>
+                  <v-card-text class="pt-4">
+                    <v-simple-table>
+                      <template v-slot:default>
+                        <tbody>
+                          <tr>
+                            <td class="font-weight-medium">Name:</td>
+                            <td>{{ namedisplay }}</td>
+                          </tr>
+                          <tr>
+                            <td class="font-weight-medium">Check-in Date:</td>
+                            <td>{{ startdatedisplay }}</td>
+                          </tr>
+                          <tr>
+                            <td class="font-weight-medium">Check-out Date:</td>
+                            <td>{{ enddatedisplay }}</td>
+                          </tr>
+                          <tr>
+                            <td class="font-weight-medium">Room Type:</td>
+                            <td>{{ roomTypedisplay }}</td>
+                          </tr>
+                          <tr>
+                            <td class="font-weight-medium">Duration:</td>
+                            <td>{{ diffdatedisplay }} nights</td>
+                          </tr>
+                          <tr>
+                            <td class="font-weight-medium">
+                              Room Price per night:
+                            </td>
+                            <td>{{ numberWithCommas(roompricedisplay) }}</td>
+                          </tr>
+                          <tr>
+                            <td class="font-weight-medium">Service:</td>
+                            <td>{{ numberWithCommas(servicedisplay) }}</td>
+                          </tr>
+                          <tr>
+                            <td class="font-weight-medium">TAX:</td>
+                            <td>
+                              {{
+                                numberWithCommas(
+                                  parseFloat(vatdisplay).toFixed(2)
+                                )
+                              }}
+                            </td>
+                          </tr>
+                          <tr>
+                            <td class="font-weight-medium">Discount:</td>
+                            <td>
+                              {{
+                                discountdisplay
+                                  ? numberWithCommas(
+                                      parseFloat(discountdisplay).toFixed(2)
+                                    )
+                                  : "0.00"
+                              }}
+                            </td>
+                          </tr>
+                          <tr>
+                            <td class="font-weight-medium">
+                              Subtotal(inc. VAT):
+                            </td>
+                            <td class="font-weight-medium">
+                              {{
+                                numberWithCommas(
+                                  parseFloat(totalpricevatdisplay).toFixed(2)
+                                )
+                              }}
+                            </td>
+                          </tr>
+                          <tr>
+                            <td class="font-weight-medium">Total Price:</td>
+                            <td class="font-weight-medium">
+                              {{
+                                numberWithCommas(
+                                  parseFloat(totalpricedisplay).toFixed(2)
+                                )
+                              }}
+                            </td>
+                          </tr>
+                        </tbody>
+                      </template>
+                    </v-simple-table>
+                  </v-card-text>
+                  <v-divider></v-divider>
 
-                    <v-card-actions class="pa-4">
-                      <v-spacer></v-spacer>
-                      <v-btn text @click="summaryDialog = false">Back</v-btn>
-                      <v-btn color="primary" @click="SaveTransection">
-                        Confirm Booking
-                      </v-btn>
-                    </v-card-actions>
-                  </v-card>
-                </v-dialog>
+                  <v-card-actions class="pa-4" v-if="dialogMode === 'booking'">
+                    <v-spacer></v-spacer>
+                    <v-btn text @click="summaryDialog = false">Back</v-btn>
+                    <v-btn color="primary" @click="SaveTransection"
+                      >Confirm Booking</v-btn
+                    >
+                  </v-card-actions>
+
+                  <v-card-actions
+                    class="pa-4"
+                    v-else-if="dialogMode === 'view'"
+                  >
+                    <v-spacer></v-spacer>
+                    <v-btn text @click="summaryDialog = false">Close</v-btn>
+                  </v-card-actions>
+                </v-card>
               </v-dialog>
 
               <v-card-text>
@@ -207,7 +240,7 @@
                     <v-data-table
                       :headers="headers"
                       :items="bookingData"
-                      :items-per-page="15"
+                      :items-per-page="10"
                       class="elevation-2 rounded-lg"
                       dense
                     >
@@ -223,26 +256,42 @@
                           </td>
                           <td class="text-center">{{ item.room_type }}</td>
                           <td class="text-center">
-                            {{ parseFloat(item.price).toFixed(0) }}
+                            {{
+                              numberWithCommas(
+                                parseFloat(item.price).toFixed(2)
+                              )
+                            }}
                           </td>
-                          <td class="text-center"> 
+                          <td class="text-center">
                             <v-icon v-if="item.status" color="green">
-                                mdi-check-circle
-                           </v-icon>
-                             <v-icon v-else color="red">
-                                mdi-close-circle
+                              mdi-check-circle
+                            </v-icon>
+                            <v-icon v-else color="red">
+                              mdi-close-circle
                             </v-icon>
                           </td>
-                          <td class="text-center"> 
+                          <td class="text-center">
                             <v-icon v-if="item.cancel_status" color="green">
-                                mdi-check-circle
-                           </v-icon>
-                             <v-icon v-else color="red">
-                                mdi-close-circle
+                              mdi-check-circle
+                            </v-icon>
+                            <v-icon v-else color="red">
+                              mdi-close-circle
                             </v-icon>
                           </td>
 
                           <td class="text-center">
+                            <v-btn
+                              class="ma-1"
+                              small
+                              icon
+                              color="blue"
+                              @click="
+                                openviewdatasummary(item);
+                                summaryDialog = true;
+                              "
+                            >
+                              <v-icon>mdi-eye-outline</v-icon>
+                            </v-btn>
                             <v-btn
                               :disabled="item.status || item.cancel_status"
                               class="ma-1"
@@ -274,10 +323,81 @@
           </v-col>
         </v-row>
         <v-row>
-          <v-col cols="3" sm="3" md="3">
+          <v-col cols="4">
+            <v-card elevation="2" class="income-card">
+              <v-card-title class="income-header d-flex align-center pa-4">
+                <v-icon left size="30" class="income-icon mr-3" color="primary"
+                  >mdi-cash-multiple</v-icon
+                >
+                Total income
+                <v-spacer></v-spacer>
+                <v-btn icon class="refresh-btn" @click="GetTotalIncome">
+                  <v-icon>mdi-refresh</v-icon>
+                </v-btn>
+              </v-card-title>
+
+              <v-card-text class="income-content pa-6">
+                <v-row justify="center" align="center">
+                  <v-col v-if="loading" class="text-center">
+                    <v-progress-circular
+                      indeterminate
+                      color="primary"
+                      size="50"
+                      width="5"
+                    ></v-progress-circular>
+                  </v-col>
+                  <v-col v-else class="text-center">
+                    <div class="income-label text-subtitle-1 grey--text mb-2">
+                      Total Income
+                    </div>
+                    <div class="income-amount font-weight-bold primary--text">
+                      ฿{{
+                        numberWithCommas(parseFloat(totalIncome).toFixed(2))
+                      }}
+                    </div>
+                  </v-col>
+                </v-row>
+              </v-card-text>
+            </v-card>
+          </v-col>
+
+          <v-col cols="8">
+            <v-card class="room-income-card">
+              <v-card-title class="room-income-header">
+                <v-icon left size="24" class="mr-2" color="primary"
+                  >mdi-chart-box</v-icon
+                >
+                Income by room type
+              </v-card-title>
+              <v-card-text class="pa-4">
+                <v-data-table
+                  :headers="incomeheader"
+                  :items="incomeByRoomType"
+                  item-value="roomType"
+                  class="elevation-2 room-income-table"
+                  hide-default-footer
+                  dense
+                >
+                  <template v-slot:[`item.totalIncome`]="{ item }">
+                    <span class="font-weight-medium">
+                      ฿{{
+                        numberWithCommas(
+                          parseFloat(item.totalIncome).toFixed(2)
+                        )
+                      }}
+                    </span>
+                  </template>
+                </v-data-table>
+              </v-card-text>
+            </v-card>
+          </v-col>
+        </v-row>
+
+        <v-row>
+          <v-col cols="4" sm="4" md="4">
             <v-card>
               <v-card-title class="headline font-weight-bold"
-                >Settings</v-card-title
+                >Service Charge</v-card-title
               >
               <v-card-text>
                 <v-row align="center">
@@ -312,7 +432,9 @@
                           <tr v-for="item in items" :key="item.id">
                             <td class="text-center">{{ item.id }}</td>
                             <td class="text-center">{{ item.list_service }}</td>
-                            <td class="text-center">{{ item.price }}</td>
+                            <td class="text-center">
+                              {{ numberWithCommas(item.price) }}
+                            </td>
                             <td class="text-center">
                               <v-btn
                                 icon
@@ -374,7 +496,7 @@
             </v-card>
           </v-dialog>
 
-          <v-col cols="3" sm="3" md="3">
+          <v-col cols="4" sm="4" md="4">
             <v-card>
               <v-card-title class="headline font-weight-bold"
                 >Promotion</v-card-title
@@ -417,7 +539,9 @@
                             <td class="text-center">
                               {{ ChangeFormatDate(item.end_date) }}
                             </td>
-                            <td class="text-center">{{ item.discount }}</td>
+                            <td class="text-center">
+                              {{ numberWithCommas(item.discount) }}
+                            </td>
                             <td class="text-center">
                               <v-btn
                                 icon
@@ -500,7 +624,7 @@
                     <v-text-field
                       :value="ChangeFormatDate(editedPromotion.end_date)"
                       @input="updateEndDate($event)"
-                      label="Start Date"
+                      label="End Date"
                       append-icon="mdi-calendar-heart"
                       readonly
                       v-bind="attrs"
@@ -521,6 +645,11 @@
                   label="Discount"
                   outlined
                   dense
+                  type="number"
+                  :rules="[
+                    (v) => !!v || 'Required',
+                    (v) => v > 0 || 'Discount must be greater than 0',
+                  ]"
                 ></v-text-field>
                 <v-switch
                   v-model="editedPromotion.status"
@@ -541,14 +670,7 @@
             </v-card>
           </v-dialog>
 
-          <!-- <v-col cols="6">
-            <v-card>
-              <v-card-title class="headline"> Total Income</v-card-title>
-              <v-card-text>Overview</v-card-text>
-            </v-card>
-          </v-col> -->
-
-          <v-col cols="3" sm="3" md="3">
+          <v-col cols="4" sm="4" md="4">
             <v-card>
               <v-card-title class="headline font-weight-bold"
                 >Manage Room</v-card-title
@@ -585,8 +707,17 @@
                           <tr v-for="item in items" :key="item.id">
                             <td class="text-center">{{ item.id }}</td>
                             <td class="text-center">{{ item.room_type }}</td>
-                            <td class="text-center">{{ item.room_price }}</td>
-                            <td class="text-center">{{ item.status }}</td>
+                            <td class="text-center">
+                              {{ numberWithCommas(item.room_price) }}
+                            </td>
+                            <td class="text-center">
+                              <v-icon v-if="item.status" color="green">
+                                mdi-check-circle
+                              </v-icon>
+                              <v-icon v-else color="red">
+                                mdi-close-circle
+                              </v-icon>
+                            </td>
                             <td class="text-center">
                               <v-btn
                                 icon
@@ -717,13 +848,13 @@ export default {
       {
         text: "Check-out Status",
         align: "center",
-        value: "status",
+        value: "checkout_status",
         sortable: false,
       },
       {
         text: "Cancel Status",
         align: "center",
-        value: "status",
+        value: "cancel_status",
         sortable: false,
       },
       { text: "Actions", align: "center", value: "actions", sortable: false },
@@ -761,7 +892,7 @@ export default {
       {
         text: "End Date",
         align: "center",
-        value: "startdate",
+        value: "enddate",
         sortable: false,
       },
       { text: "Discount", align: "center", value: "Price", sortable: false },
@@ -783,7 +914,7 @@ export default {
       {
         text: "Room Type",
         align: "center",
-        value: "Roomtype",
+        value: "roomtype",
         sortable: false,
       },
       {
@@ -823,49 +954,51 @@ export default {
     vatdisplay: "",
     discountdisplay: "",
     totalpricedisplay: "",
+    dialogMode: "booking" || "view",
+    totalIncome: 0,
+    loading: true,
+    error: null,
+    incomeByRoomType: [],
+    incomeheader: [
+      { text: "Room Type", align: "center", value: "roomType" },
+      { text: "Totalincome", align: "center", value: "totalIncome" },
+    ],
   }),
   async mounted() {
     await this.GetDataRoomtype();
     await this.GetDataBooking();
+    await this.AutoCheckout();
+    await this.GetTotalIncome();
   },
   methods: {
-    getStatusColor(status) {
-      switch (status) {
-        case "reserved":
-          return "blue";
-        case "checked-in":
-          return "green";
-        case "wait check-in":
-          return "orange";
-        default:
-          return "grey";
+    async GetTotalIncome() {
+      let self = this;
+      self.loading = true;
+      try {
+        const response = await axios.get(`${self.url}Booking/GetTotalIncome`);
+        if (response.data.status === 0) {
+          self.totalIncome = response.data.data;
+          self.incomeByRoomType = response.data.incomeByRoomType;
+        } else {
+          self.totalIncome = 0;
+        }
+      } catch (error) {
+        console.error("Error:", error);
+        self.totalIncome = 0;
+      } finally {
+        self.loading = false;
       }
+    },
+    numberWithCommas(x) {
+      return x.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",");
     },
     ReloadPage() {
       window.location.reload();
     },
-    // editBooking(item) {
-    //   axios
-    //     .post(`${this.url}Settings/BookingStatus`, {
-    //       room_type: item.room_type,
-    //       status: item.status,
-    //     })
-    //     .then((response) => {
-    //       console.log("New status:", item.status);
-    //       if (response.data.status === 0) {
-    //         // console.log("After API call:", item.status);
-    //         Swal.fire("สำเร็จ!", "สถานะถูกอัปเดตแล้ว.", "success");
-    //         this.GetDataBooking();
-    //       }
-    //     })
-    //     .catch((error) => {
-    //       Swal.fire("เกิดข้อผิดพลาด!", error.response.data.message, "error");
-    //     });
-    // },
     deleteBooking(item) {
       let self = this;
       let temp = {
-        id:item.id,
+        id: item.id,
       };
       Swal.fire({
         title: "คุณแน่ใจหรือไม่?",
@@ -878,7 +1011,7 @@ export default {
       }).then((result) => {
         if (result.isConfirmed) {
           axios
-            .post(`${self.url}Booking/CancelBooking`,temp)
+            .post(`${self.url}Booking/CancelBooking`, temp)
             .then(function (response) {
               if (response.data.status === 0) {
                 Swal.fire(
@@ -902,16 +1035,60 @@ export default {
     submitBooking() {
       let self = this;
       self.saveBooking();
-      // self.summaryDialog = true;
       self.GetDataBooking();
+    },
+    openviewdatasummary(item) {
+      let self = this;
+      self.viewDataBooking(item);
+      self.dialogMode = "view";
+      self.summaryDialog = true;
+    },
+    viewDataBooking(item) {
+      let self = this;
+      let temp = {
+        start_date: self.ChangeDate(item.start_date),
+        end_date: self.ChangeDate(item.end_date),
+        room_type: item.roomID,
+      };
+      axios
+        .post(`${self.url}Booking/Viewdatabooking`, temp)
+        .then(function (response) {
+          if (response.data.status == 0) {
+            self.roomTypedisplay = response.data.data.room_type;
+            self.startdatedisplay = response.data.data.start_date;
+            self.enddatedisplay = response.data.data.end_date;
+            self.roompricedisplay = response.data.data.roomprice;
+            self.servicedisplay = response.data.data.service;
+            self.vatdisplay = response.data.data.tax;
+            self.totalpricedisplay = response.data.data.totalprice;
+            self.diffdatedisplay = response.data.data.diffDates;
+            self.totalpricevatdisplay = response.data.data.totalprice_vat;
+            self.discountdisplay = response.data.data.discount;
+            self.namedisplay = item.name;
+
+            self.summaryDialog = true;
+            self.GetDataRoomtype();
+          } else {
+            console.error("Error in response status:", response.data.status);
+          }
+        })
+        .catch(function (error) {
+          console.error("Error fetching booking data:", error);
+          Swal.fire({
+            icon: "error",
+            title: "Error...",
+            width: 900,
+            text: error.response.data.message,
+          });
+        });
     },
     savebooking() {
       let self = this;
-      if (!self.StartDate || !self.EndDate || !self.roomType) {
+      if (!self.name || !self.StartDate || !self.EndDate || !self.roomType) {
         Swal.fire({
           icon: "warning",
           title: "กรุณากรอกข้อมูลให้ครบถ้วน",
-          text: "กรุณากรอกวันที่เช็คอิน, วันที่เช็คเอาท์ และประเภทห้อง",
+          text: "กรุณากรอกชื่อ, วันที่เช็คอิน, วันที่เช็คเอาท์ และประเภทห้อง",
         });
         return;
       }
@@ -936,8 +1113,8 @@ export default {
             self.discountdisplay = response.data.data.discount;
             self.namedisplay = self.name;
 
-            self.GetDataRoomtype();
             self.summaryDialog = true;
+            self.GetDataRoomtype();
           }
         })
         .catch(function (error) {
@@ -967,8 +1144,6 @@ export default {
         status: self.status,
         roomID: self.roomID,
       };
-      console.log("Data to be sent to API:", temp);
-
       axios
         .post(`${self.url}Booking/SaveBooking`, temp)
         .then(function (response) {
@@ -976,10 +1151,12 @@ export default {
             Swal.fire({
               icon: "success",
               title: "บันทึกการจองสำเร็จ",
+              timer: 1500,
             });
             self.summaryDialog = false;
             // self.resetForm();
             self.ReloadPage();
+            self.GetTotalIncome();
           }
         })
         .catch(async function (error) {
@@ -991,11 +1168,37 @@ export default {
         });
     },
     editHousekeeping(item) {
-      this.editedHousekeeping = item;
-      this.showeditHousekeeping = true;
+      let self = this;
+      self.editedHousekeeping = item;
+      self.showeditHousekeeping = true;
     },
     saveItem() {
       let self = this;
+      //ตรวจสอบการกรองข้อมูล
+      if (
+        !self.editedHousekeeping.list_service ||
+        !self.editedHousekeeping.price
+      ) {
+        Swal.fire({
+          icon: "warning",
+          title: "กรุณากรอกข้อมูลให้ครบถ้วน",
+          text: "กรุณากรอกชื่อ service และราคา",
+        });
+        return;
+      }
+
+      // ตรวจสอบราคา
+      if (
+        isNaN(self.editedHousekeeping.price) ||
+        self.editedHousekeeping.price <= 0
+      ) {
+        Swal.fire({
+          icon: "warning",
+          title: "ราคาไม่ถูกต้อง",
+          text: "กรุณากรอกราคาให้ถูกต้อง",
+        });
+        return;
+      }
       let temp = {
         id: self.editedHousekeeping.id,
         list_service: self.editedHousekeeping.list_service,
@@ -1006,19 +1209,24 @@ export default {
         .post(`${self.url}Settings/SaveServiceCharge`, temp)
         .then((response) => {
           if (response.status === 200) {
-            this.GetServiceCharges();
-            this.showeditHousekeeping = false;
-          } else {
-            throw new Error("บันทึกข้อมูลไม่สำเร็จ");
+            Swal.fire({
+              icon: "success",
+              title: "บันทึกข้อมูลสำเร็จ",
+            });
+            self.GetServiceCharges();
+            self.showeditHousekeeping = false;
           }
         })
-        .catch((error) => {
-          console.error("Error details:", error);
+        .catch(async function (error) {
+          Swal.fire({
+            icon: "error",
+            title: "ไม่สามารถบันทึกข้อมูลได้",
+            text: error.response?.data?.message || "กรุณาลองใหม่อีกครั้ง",
+          });
         });
     },
     editPromotion(item) {
       let self = this;
-      console.log(item);
       self.editedPromotion.id = item.id;
       self.editedPromotion.promotion = item.promotion;
       self.editedPromotion.start_date = self.ChangeFormatDateForPicker(
@@ -1044,6 +1252,18 @@ export default {
         DateData.getFullYear()
       );
     },
+    ChangeDate(date) {
+      if (!date) return null;
+      var DateData = new Date(date);
+
+      return (
+        DateData.getFullYear() +
+        "-" +
+        ("0" + (DateData.getMonth() + 1)).slice(-2) +
+        "-" +
+        ("0" + DateData.getDate()).slice(-2)
+      );
+    },
     ChangeFormatDateForPicker(date) {
       if (!date) return null;
       var DateData = new Date(date);
@@ -1062,7 +1282,7 @@ export default {
     },
     updateEndDate(value) {
       const [day, month, year] = value.split("/");
-      this.editedPromotion.end_date_date = `${year}-${month}-${day}`;
+      this.editedPromotion.end_date = `${year}-${month}-${day}`;
     },
     editRoom(item) {
       this.editedRoom = item;
@@ -1070,6 +1290,7 @@ export default {
     },
     openbookingsummary() {
       let self = this;
+      self.dialogMode = "booking";
       self.savebooking();
       if (self.StartDate && self.EndDate && self.roomType) {
         self.summaryDialog = true;
@@ -1116,7 +1337,6 @@ export default {
       await axios
         .get(`${self.url}Settings/GetServiceCharges`)
         .then(function (response) {
-          console.log(response.data.data);
           if (response.data.status == 0) {
             self.housekeepingData = response.data.data;
             self.dialogManageHousekeeping = true;
@@ -1133,6 +1353,32 @@ export default {
     },
     savePromotion() {
       let self = this;
+      //ตรวจสอบวันที่
+      if (
+        new Date(self.editedPromotion.end_date) <=
+        new Date(self.editedPromotion.start_date)
+      ) {
+        Swal.fire({
+          icon: "warning",
+          title: "วันที่ไม่ถูกต้อง",
+          text: "วันที่สิ้นสุดต้องมากกว่าวันที่เริ่มต้น",
+        });
+        return;
+      }
+
+      // ตรวจสอบส่วนลด
+      if (
+        isNaN(self.editedPromotion.discount) ||
+        self.editedPromotion.discount <= 0
+      ) {
+        Swal.fire({
+          icon: "warning",
+          title: "ส่วนลดไม่ถูกต้อง",
+          text: "กรุณากรอกส่วนลดให้ถูกต้อง",
+        });
+        return;
+      }
+
       let temp = {
         id: self.editedPromotion.id,
         promotion: self.editedPromotion.promotion,
@@ -1145,14 +1391,20 @@ export default {
         .post(`${self.url}Settings/SavePromotion`, temp)
         .then((response) => {
           if (response.status === 200) {
-            this.GetPromotion();
-            this.showeditPromotion = false;
-          } else {
-            throw new Error("บันทึกข้อมูลไม่สำเร็จ");
+            Swal.fire({
+              icon: "success",
+              title: "บันทึกข้อมูลสำเร็จ",
+            });
+            self.GetPromotion();
+            self.showeditPromotion = false;
           }
         })
-        .catch((error) => {
-          console.error("Error details:", error);
+        .catch(async function (error) {
+          Swal.fire({
+            icon: "error",
+            title: "ไม่สามารถบันทึกข้อมูลได้",
+            text: error.response?.data?.message || "กรุณาลองใหม่อีกครั้ง",
+          });
         });
     },
     async GetPromotion() {
@@ -1160,7 +1412,6 @@ export default {
       await axios
         .get(`${self.url}Settings/GetPromotion`)
         .then(function (response) {
-          console.log(response.data.data);
           if (response.data.status == 0) {
             self.promotionData = response.data.data;
             self.dialogManagePromotion = true;
@@ -1187,14 +1438,20 @@ export default {
         .post(`${self.url}Settings/SaveRoomData`, temp)
         .then((response) => {
           if (response.status === 200) {
-            this.GetDataRoom();
-            this.showeditRoom = false;
-          } else {
-            throw new Error("บันทึกข้อมูลไม่สำเร็จ");
+            Swal.fire({
+              icon: "success",
+              title: "บันทึกข้อมูลสำเร็จ",
+            });
+            self.GetDataRoom();
+            self.showeditRoom = false;
           }
         })
-        .catch((error) => {
-          console.error("Error details:", error);
+        .catch(async function (error) {
+          Swal.fire({
+            icon: "error",
+            title: "ไม่สามารถบันทึกข้อมูลได้",
+            text: error.response?.data?.message || "กรุณาลองใหม่อีกครั้ง",
+          });
         });
     },
     async GetDataRoom() {
@@ -1202,7 +1459,6 @@ export default {
       await axios
         .get(`${self.url}Settings/GetRoom`)
         .then(function (response) {
-          console.log(response.data.data);
           if (response.data.status == 0) {
             self.roomData = response.data.data;
             self.dialogManageRoom = true;
@@ -1217,32 +1473,11 @@ export default {
           });
         });
     },
-    checkoutBooking(item) {
+    async AutoCheckout() {
       let self = this;
-      let temp = {
-        id: item.id,
-      };
-      console.log("Data to API:", temp);
-      axios
-        .post(`${self.url}Booking/Checkout`, temp)
-        .then((response) => {
-          if (response.status === 200 && response.data.status === 0) {
-            this.GetDataBooking();
-            Swal.fire({
-              icon: "success",
-              title: "บันทึกข้อมูลสำเร็จ",
-              showConfirmButton: false,
-              timer: 1500,
-            });
-          } else {
-            Swal.fire({
-              icon: "error",
-              title: "บันทึกข้อมูลไม่สำเร็จ",
-              width: 500,
-              text: response.data.message,
-            });
-          }
-        })
+      await axios
+        .get(`${self.url}Booking/AutoCheckout`)
+        .then(function () {})
         .catch(function (error) {
           Swal.fire({
             icon: "error",
@@ -1251,6 +1486,54 @@ export default {
             text: error.response.data.message,
           });
         });
+    },
+    checkoutBooking(item) {
+      let self = this;
+      let temp = {
+        id: item.id,
+      };
+      Swal.fire({
+        title: "คุณแน่ใจหรือไม่?",
+        text: "คุณต้องการเช็คเอ้าท์การจองนี้!",
+        icon: "warning",
+        showCancelButton: true,
+        confirmButtonColor: "#d33",
+        cancelButtonColor: "#3085d6",
+        confirmButtonText: "ใช่, เช็คเอ้าท์!",
+      }).then((result) => {
+        if (result.isConfirmed) {
+          axios
+            .post(`${self.url}Booking/Checkout`, temp)
+            .then(function (response) {
+              if (response.data.status === 0) {
+                Swal.fire(
+                  "เช็คเอ้าท์สำเร็จ!",
+                  "การจองของคุณถูกเช็คเอ้าท์แล้ว.",
+                  "success"
+                );
+                self.GetDataBooking();
+              }
+            })
+            .catch(function (error) {
+              Swal.fire(
+                "เกิดข้อผิดพลาด!",
+                error.response.data.message,
+                "error"
+              );
+            });
+        }
+      });
+    },
+    getCurrentDateTime() {
+      const now = new Date();
+      return now.toLocaleString("th-TH", {
+        year: "numeric",
+        month: "long",
+        day: "numeric",
+        hour: "2-digit",
+        minute: "2-digit",
+        hour12: false,
+      });
     },
   },
 };
@@ -1305,21 +1588,135 @@ export default {
   overflow: hidden;
 }
 
+/* Form Fields */
 .v-text-field.v-text-field--outlined .v-input__control {
-  min-height: 44px !important;
+  min-height: 48px !important;
+  transition: all 0.3s ease;
 }
 
 .v-text-field--outlined fieldset {
-  border-radius: 8px !important;
+  border-radius: 12px !important;
+  transition: all 0.3s ease;
 }
 
+.v-text-field--outlined:hover fieldset {
+  border-color: rgba(33, 150, 243, 0.5) !important;
+}
 .v-app-bar {
-  backdrop-filter: blur(10px);
-  background: linear-gradient(45deg, #1976d2, #2196f3) !important;
+  backdrop-filter: blur(15px);
+  background: linear-gradient(
+    45deg,
+    rgba(25, 118, 210, 0.95),
+    rgba(33, 150, 243, 0.95)
+  ) !important;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
 }
 
 .v-toolbar-title {
-  font-size: 1.4rem !important;
+  font-size: 1.5rem !important;
   font-weight: 700 !important;
+  background: linear-gradient(45deg, #ffffff, #e3f2fd);
+}
+
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.v-icon {
+  transition: all 0.3s ease !important;
+}
+
+.v-icon.success {
+  color: green !important;
+  text-shadow: 0 0 8px rgba(76, 175, 80, 0.3);
+}
+
+.v-icon.error {
+  color: red !important;
+  text-shadow: 0 0 8px rgba(244, 67, 54, 0.3);
+}
+
+.v-container {
+  padding: 28px !important;
+}
+
+.v-row {
+  margin: -16px;
+}
+
+.v-col {
+  padding: 16px;
+}
+
+.v-progress-linear__indeterminate {
+  animation-duration: 2s;
+}
+
+.v-select__selections {
+  transition: all 0.3s ease;
+}
+
+.v-select:hover .v-select__selections {
+  transform: translateX(4px);
+}
+
+.income-card {
+  height: 100%;
+  background: linear-gradient(135deg, #ffffff 0%, #f8f9fa 100%);
+}
+
+.income-header {
+  border-bottom: 1px solid rgba(0, 0, 0, 0.05);
+}
+
+.income-icon {
+  filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.1));
+}
+
+.income-amount {
+  font-family: "Kanit", "Roboto", sans-serif;
+  font-size: 1.75rem;
+  letter-spacing: 0.5px;
+}
+
+.income-label {
+  font-family: "Kanit", "Roboto", sans-serif;
+}
+
+.refresh-btn {
+  opacity: 0.7;
+  transition: all 0.3s ease;
+}
+
+.refresh-btn:hover {
+  opacity: 1;
+  transform: rotate(180deg);
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.v-card-title .v-icon {
+  opacity: 0.9;
+}
+
+.income-content .text-h2 {
+  background: linear-gradient(45deg, #1976d2, #2196f3);
+  text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.1);
 }
 </style>
