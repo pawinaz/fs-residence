@@ -3,7 +3,7 @@
     <v-app-bar app color="primary" dark>
       <v-icon>mdi-sleep</v-icon>
       <v-toolbar-title style="margin-left: 10px; font-weight: 600"
-        >FS Hotel</v-toolbar-title
+        >FS Residence</v-toolbar-title
       >
       <v-spacer></v-spacer>
     </v-app-bar>
@@ -78,7 +78,7 @@
                               <v-date-picker
                                 v-model="StartDate"
                                 no-title
-                                :min="new Date().toISOString().substr(0, 10)"
+                                
                                 @change="menuStartDate = false"
                               ></v-date-picker>
                             </v-menu>
@@ -108,7 +108,7 @@
                               <v-date-picker
                                 v-model="EndDate"
                                 no-title
-                                :min="new Date().toISOString().substr(0, 10)"
+                               
                                 @input="menuEndDate = false"
                               ></v-date-picker>
                             </v-menu>
@@ -137,7 +137,7 @@
                       <template v-slot:default>
                         <tbody>
                           <tr>
-                            <td class="font-weight-medium">Name:</td>
+                            <td class="font-weight-medium">Customer Name:</td>
                             <td>{{ namedisplay }}</td>
                           </tr>
                           <tr>
@@ -158,16 +158,22 @@
                           </tr>
                           <tr>
                             <td class="font-weight-medium">
+                              Room Charges:
+                            </td>
+                            <td>{{ numberWithCommas(totalroompricedis) }}</td>
+                          </tr>
+                          <!-- <tr>
+                            <td class="font-weight-medium">
                               Room Price per night:
                             </td>
                             <td>{{ numberWithCommas(roompricedisplay) }}</td>
-                          </tr>
+                          </tr> -->
                           <tr>
-                            <td class="font-weight-medium">Service:</td>
+                            <td class="font-weight-medium">Service charge:</td>
                             <td>{{ numberWithCommas(servicedisplay) }}</td>
                           </tr>
                           <tr>
-                            <td class="font-weight-medium">TAX:</td>
+                            <td class="font-weight-medium">Tax:</td>
                             <td>
                               {{
                                 numberWithCommas(
@@ -177,7 +183,19 @@
                             </td>
                           </tr>
                           <tr>
-                            <td class="font-weight-medium">Discount:</td>
+                            <td class="font-weight-medium">
+                              Total Before Discount:
+                            </td>
+                            <td class="font-weight-medium">
+                              {{
+                                numberWithCommas(
+                                  parseFloat(totalrealprice).toFixed(2)
+                                )
+                              }}
+                            </td>
+                          </tr>
+                          <tr>
+                            <td class="font-weight-medium">Discount Applied :</td>
                             <td>
                               {{
                                 discountdisplay
@@ -189,19 +207,7 @@
                             </td>
                           </tr>
                           <tr>
-                            <td class="font-weight-medium">
-                              Subtotal(inc. VAT):
-                            </td>
-                            <td class="font-weight-medium">
-                              {{
-                                numberWithCommas(
-                                  parseFloat(totalpricevatdisplay).toFixed(2)
-                                )
-                              }}
-                            </td>
-                          </tr>
-                          <tr>
-                            <td class="font-weight-medium">Total Price:</td>
+                            <td class="font-weight-medium">Total Payable:</td>
                             <td class="font-weight-medium">
                               {{
                                 numberWithCommas(
@@ -604,7 +610,7 @@
                       v-on="on"
                       outlined
                       dense
-                      :rules="[(v) => !!v || 'Required']"
+                      
                     ></v-text-field>
                   </template>
                   <v-date-picker
@@ -631,7 +637,7 @@
                       v-on="on"
                       outlined
                       dense
-                      :rules="[(v) => !!v || 'Required']"
+                      
                     ></v-text-field>
                   </template>
                   <v-date-picker
@@ -778,7 +784,7 @@
                 <v-btn text color="grey" @click="showeditRoom = false"
                   >Cancel</v-btn
                 >
-                <v-btn text color="primary" @click="saveRoomData()">Save</v-btn>
+                <v-btn text color="primary" @click="SaveRoomDatanew()">Save</v-btn>
               </v-card-actions>
             </v-card>
           </v-dialog>
@@ -947,6 +953,8 @@ export default {
     startdatedisplay: "",
     enddatedisplay: "",
     roomTypedisplay: "",
+    totalroompricedis:"",
+    totalrealprice:"",
     roompricedisplay: "",
     servicedisplay: "",
     diffdatedisplay: "",
@@ -1057,6 +1065,8 @@ export default {
             self.roomTypedisplay = response.data.data.room_type;
             self.startdatedisplay = response.data.data.start_date;
             self.enddatedisplay = response.data.data.end_date;
+            self.totalroompricedis = response.data.data.realprice;
+            self.totalrealprice = response.data.data.realprice_vat;
             self.roompricedisplay = response.data.data.roomprice;
             self.servicedisplay = response.data.data.service;
             self.vatdisplay = response.data.data.tax;
@@ -1104,6 +1114,8 @@ export default {
             self.roomTypedisplay = response.data.data.room_type;
             self.startdatedisplay = response.data.data.start_date;
             self.enddatedisplay = response.data.data.end_date;
+            self.totalroompricedis = response.data.data.realprice;
+            self.totalrealprice = response.data.data.realprice_vat;
             self.roompricedisplay = response.data.data.roomprice;
             self.servicedisplay = response.data.data.service;
             self.vatdisplay = response.data.data.tax;
@@ -1382,11 +1394,12 @@ export default {
       let temp = {
         id: self.editedPromotion.id,
         promotion: self.editedPromotion.promotion,
-        start_date: self.editedPromotion.start_date,
-        end_date: self.editedPromotion.end_date,
+        start_date: self.ChangeDate(self.editedPromotion.start_date), 
+        end_date: self.ChangeDate(self.editedPromotion.end_date),     
         discount: self.editedPromotion.discount,
         status: self.editedPromotion.status,
       };
+      console.log(temp);
       axios
         .post(`${self.url}Settings/SavePromotion`, temp)
         .then((response) => {
@@ -1426,7 +1439,7 @@ export default {
           });
         });
     },
-    saveRoomData() {
+    SaveRoomDatanew() {
       let self = this;
       let temp = {
         id: self.editedRoom.id,
@@ -1435,7 +1448,7 @@ export default {
         status: self.editedRoom.status,
       };
       axios
-        .post(`${self.url}Settings/SaveRoomData`, temp)
+        .post(`${self.url}Settings/SaveRoomDatanew`, temp)
         .then((response) => {
           if (response.status === 200) {
             Swal.fire({
@@ -1512,6 +1525,7 @@ export default {
                   "success"
                 );
                 self.GetDataBooking();
+                self.ReloadPage();
               }
             })
             .catch(function (error) {
@@ -1720,3 +1734,7 @@ export default {
   text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.1);
 }
 </style>
+
+
+<!-- :min="new Date().toISOString().substr(0, 10)" -->
+ 
